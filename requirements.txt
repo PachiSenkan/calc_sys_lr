@@ -1,0 +1,6 @@
+requests == 2.31.0
+beautifulsoup4 == 4.12.2
+db-sqlite3
+urllib
+collections
+tqdm~=4.66.1
