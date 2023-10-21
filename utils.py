@@ -43,8 +43,8 @@ def get_text_only(soup):
 
 def get_marked_html(word_list, query_list, info_string=''):
     """Генерировть html-код с маркировкой указанных слов цветом
-    wordList - список отдельных слов исходного текста
-    queryList - список отдельных искомых слов,
+    :param wordList - список отдельных слов исходного текста
+    :param queryList - список отдельных искомых слов,
     """
     color_dict = {}
     color_list = ['SandyBrown', 'SkyBlue', 'Gold', 'LightPink', 'Orchid']
@@ -65,6 +65,7 @@ def get_marked_html(word_list, query_list, info_string=''):
 def create_marked_html_file(marked_html_filename, url, query, info_string=''):
     query = query.lower()
     query = query.split()
+
     # Прeобразование текста к нижнему регистру
     test_text = get_text_only(get_clean_html_from_url(url))
     test_text = test_text.lower()
@@ -76,8 +77,6 @@ def create_marked_html_file(marked_html_filename, url, query, info_string=''):
 
     # Получить html-код с маркировкой искомых слов
     html_code = get_marked_html(word_list, query, info_string)
-    #print(len(word_list))
-    #print(html_code)
 
     # сохранить html-код в файл с указанным именем
     file = open(marked_html_filename, 'w', encoding="utf-8")

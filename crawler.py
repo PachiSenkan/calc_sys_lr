@@ -4,8 +4,7 @@ import time
 from urllib.parse import urlparse
 from collections import Counter
 
-import requests  # подключить библиотеку для работы с HTTP
-from bs4 import BeautifulSoup  # подключить библиотеку Парсера
+
 from tqdm import tqdm
 
 from utils import *
@@ -82,21 +81,6 @@ class Crawler:
                 self.curs.execute("INSERT INTO wordlocation(fk_wordid, fk_URLId, location) values(?, ?, ?)",
                                   (word_id, url_id, i))
                 self.conn.commit()
-
-    # 2. Получение текста страницы
-    #def get_text_only(self, soup):
-    #    text = soup.getText()
-    #    # break into lines and remove leading and trailing space on each
-    #    lines = (line.strip() for line in text.splitlines())
-    #    # break multi-headlines into a line each
-    #    chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-    #    # drop blank lines
-    #    text = '\n'.join(chunk for chunk in chunks if chunk)
-    #
-    #    found_img = soup.find_all('img')
-    #    img_text = '\n'.join(img['alt'] for img in found_img if 'alt' in img.attrs)
-    #    text = '\n'.join([text, img_text])
-    #    return text
 
     # 3. Разбиение текста на слова (https://www.geeksforgeeks.org/python-spilt-a-sentence-into-list-of-words/)
     def separate_words(self, text):

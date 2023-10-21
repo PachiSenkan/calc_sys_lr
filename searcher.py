@@ -36,6 +36,15 @@ def frequency_score(rows):
     return normalize_scores(counts)
 
 
+def location_score(rows):
+    locations = dict([(row[0],1000000) for row in rows])
+    for row in rows:
+        loc = sum(row[1:])
+        if loc < locations[row[0]]:
+            locations[row[0]] = loc
+    return normalize_scores(locations, small_is_better=True)
+
+
 def distance_score(rows):
     # Если есть только одно слово, любой документ выигрывает!
     if len(rows[0]) <= 2:
@@ -107,12 +116,6 @@ class Searcher:
             m1_scores = metric(rows_loc)
         else:
             m1_scores = metric(rows_loc, self.con)
-        # получить rowsLoc и wordids от getMatchRows(queryString)
-        # rowsLoc - Список вхождений: urlId, loc_q1, loc_q2, .. слов из поискового запроса "q1 q2 ..."
-        # wordids - Список wordids.rowid слов поискового запроса
-
-        # Получить m1Scores - словарь {id URL страниц где встретились искомые слова: вычисленный нормализованный РАНГ}
-        # как результат вычисления одной из метрик
 
         # Создать список для последующей сортировки рангов и url-адресов
         ranked_scores_list = list()
@@ -197,11 +200,7 @@ class Searcher:
 
         # Конструктор SQL-запроса (заполнение обязательной и дополнительных частей)
         # обход в цикле каждого искомого слова и добавлене в SQL-запрос соответствующих частей
-        # for word_index in range(0, len(words_list)):
         for word_index, word_id in enumerate(words_id_list):
-
-            # Получить идентификатор слова
-            # word_id = words_id_list[word_index]
 
             if word_index == 0:
                 # обязательная часть для первого слова
@@ -209,33 +208,22 @@ class Searcher:
                 sql_part_name.append(""", w0.location""")
 
                 sql_part_condition.append(f'WHERE w0.fk_wordid={word_id}')
-                # ""WHERE w0.fk_wordid={}""".format(word_id))
 
             elif len(words_list) >= 2:
                 # Дополнительная часть для 2,3,.. искомых слов
-
                 # Проверка, если текущее слово - второе и более
-
                 # Добавить в имена столбцов
                 sql_part_name.append(f', w{word_index}.location')
-                # """ , w{}.location w{}_loc --положение следующего искомого слова""".format(word_index,
-                #                                                                          word_index))
 
                 # Добавить в sql INNER JOIN
                 sql_part_join.append(f'INNER JOIN wordlocation w{word_index}'
                                      f' on w0.fk_URLId=w{word_index}.fk_URLId')
-                # """INNER JOIN wordlocation w{}  -- назначим псевдоним w{} для второй из соединяемых таблиц
-                #        on w0.fk_URLId=w{}.fk_URLId -- условие объединения""".format(word_index, word_index,
-                #                                                                     word_index))
+
                 # Добавить в sql ограничивающее условие
                 sql_part_condition.append(f'AND w{word_index}.fk_wordid={word_id}')
-                # """  AND w{}.fk_wordid={} -- совпадение w{}... с cоответсвующим словом """.format(word_index,
-                #                                                                                  word_id,
-                #                                                                                 word_index))
 
-            # Объеднение запроса из отдельных частей
-
-            # Команда SELECT
+        # Объеднение запроса из отдельных частей
+        # Команда SELECT
         sql_full_query += 'SELECT '
 
         # Все имена столбцов для вывода
@@ -258,7 +246,7 @@ class Searcher:
             sql_full_query += sql_part
 
         # Выполнить SQL-запроса и извлеч ответ от БД
-        # print(sql_full_query)
+        #print(sql_full_query)
         cur = self.con.execute(sql_full_query)
         rows = [row for row in cur]
 
